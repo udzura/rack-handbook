@@ -1,38 +1,39 @@
-## Day 3: plackupを使う
+## Day 3: rackupを使う
 
-Day 2の記事ではplackupコマンドを利用してHello World PSGIアプリケーションを起動しました。
+Day 2の記事ではrackupコマンドを利用してHello World Rackアプリケーションを起動しました。
 
-plackup はPSGIアプリケーションを起動するためのコマンドラインランチャーで、Rackのrackupにインスパイアされました。.psgiファイルに保存されたPSGIアプリケーションであれば、Plackハンドラーに対応したWebサーババックエンドの上で動かすことができます。使い方はシンプルで、.psgiファイルのパスをコマンドに渡すだけです。
+rackup はRackアプリケーションを起動するためのコマンドラインランチャーで、PSGIのplackupをインスパイアしました。`.ru`ファイルに保存されたRackアプリケーションであれば、Rackハンドラーに対応したWebサーババックエンドの上で動かすことができます。使い方はシンプルで、`.ru`ファイルのパスをコマンドに渡すだけです。
 
-    > plackup hello.psgi
-    HTTP::Server::PSGI: Accepting connections at http://0:5000/
+    > rackup hello.ru
+    [2012-11-26 16:56:32] INFO  WEBrick 1.3.1
+    [2012-11-26 16:56:32] INFO  ruby 1.9.3 (2012-11-10) [x86_64-darwin11.4.2]
+    [2012-11-26 16:56:32] INFO  WEBrick::HTTPServer#start: pid=41221 port=9292
 
-カレントディレクトリの`app.psgi`という名前のファイルを起動する場合、ファイル名も省略可能です。
+カレントディレクトリの`config.ru`という名前のファイルを起動する場合、ファイル名も省略可能です。
 
-デフォルトで起動するバックエンドは以下の方法で選ばれます。
+デフォルトで起動するバックエンドは以下の方法で選ばれます _[参考](https://github.com/rack/rack/blob/master/lib/rack/handler.rb)_ 。
 
-* 環境変数`PLACK_SERVER`が定義されている場合、その値
-* 環境特有の環境変数、たとえば `GATEWAY_INTERFACE` や `FCGI_ROLE` などが定義されている場合、CGIやFCGIバックエンドが自動で選ばれます
-* ロードされた`.psgi`ファイルがAnyEvent, CoroやPOEなどのモジュールをロードしている場合、それに対応したバックエンドが自動で選ばれます
-* その他の場合、"Standalone" バックエンドが選択され、HTTP::Server::PSGIモジュールによって起動します
+* 環境特有の環境変数、たとえば `REQUEST_METHOD` や `PHP_FCGI_CHILDREN` などが定義されている場合、CGIやFCGIバックエンドが自動で選ばれます
+* その他の場合、Thinが利用できる状態であればThinを、そうでない場合はWEBrickを利用します
 
 コマンドラインスイッチ`-s`か`--server`でバックエンドを指定することもできます。
 
-    > plackup -s Starman hello.psgi
+    > rackup -s puma hello.ru
 
-plackupコマンドはデフォルトで3つのミドルウェアを有効にします。Lint, AccessLog と StackTrace で、開発の際にログやスタックトレースを表示してくれて便利ですが、これを無効にするには、`-E`または`--environment`スイッチで`development`以外の値をセットします:
+rackupコマンドはデフォルトで5つのミドルウェアを有効にします。それらには `Rack::Lint`, `Rack::ShowException`, `Rack::CommonLogger`(* 他にも `Rack::Chunked`, `Rack::ContentLength` を有効にしますが、デバッグ目的としては関係がありません)が含まれ、開発の際にログやスタックトレースを表示してくれて便利ですが、これを無効にするには、`-E`または`--environment`スイッチで`development`以外の値をセットします:
 
-    > plackup -E production -s Starman hello.psgi
-
-Plack environment に`development`を利用したいが、デフォルトのミドルウェアは無効にしたい場合、`--no-default-middleware` オプションも用意されています。
+    > rackup -E production -s puma hello.ru
 
 その他のコマンドラインオプションをサーババックエンドに渡すこともでき、サーバのリッスンするポートは以下のように設定できます:
 
-    > plackup -s Starlet --host 127.0.0.1 --port 8080 hello.psgi
-    Plack::Handler::Starlet: Accepting connections at http://127.0.0.1:8080/
+    > rackup -s puma --host 127.0.0.1 --port 8080 hello.ru
+    Puma 1.6.3 starting...
+    * Min threads: 0, max threads: 16
+    * Environment: development
+    * Listening on tcp://127.0.0.1:8080
 
 FCGIバックエンドでUNIXドメインソケットを指定するには:
 
-    > plackup -s FCGI --listen /tmp/fcgi.sock app.psgi
+    > rackup -s fastcgi -OFile=/tmp/fcgi.sock hello.ru
 
-その他のオプションについては、コマンドラインから`perldoc plackup`を実行して参照してください。明日もplackupについて解説をつづけます。
+その他のオプションについては、コマンドラインから`rackup --help`を実行して参照してください。明日もrackupについて解説をつづけます。
