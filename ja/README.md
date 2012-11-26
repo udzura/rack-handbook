@@ -11,7 +11,3 @@ Decipleine for understanding rack - from https://github.com/miyagawa/plack-handb
 * @miyagawa さんによる [the Plack Handbook](http://handbook.plackperl.org/) の内容を [Rack](http://rack.rubyforge.org/) に翻訳するためのプロジェクトです。
 * ライセンスは原著と同じく [Attribution-NonCommercial 3.0 Unported (CC BY-NC 3.0) ](creativecommons.org/licenses/by-nc/3.0/) とします(see LICENSE)。
 * Pull Request Welcome!
-
-### TODOs
-
-* 日本語のみ、英語はだいぶあとで
